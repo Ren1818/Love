@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MathLock from "../components/MathLock/MathLock";
 import RelationshipCounter from "../components/RelationshipCounter/RelationshipCounter";
 import MusicPlayer from "../components/Music/MusicPlayer";
+import Envelope from "../components/Envelope/Envelope";
+import { useGlobalState } from "../state/GlobalState";
 
 export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => void }) {
-  const handleSolved = () => {
-    // TODO: trigger seal break animation and later expose the letter
-    console.log("solved");
-    // For Phase1 we just simulate progression for now
-    setTimeout(() => onEnterSpace(), 800);
-  };
+  const { envelopeState, setEnvelopeState } = useGlobalState();
+  const [solved, setSolved] = useState(false);
+  const [letterOpened, setLetterOpened] = useState(false);
+
+  useEffect(() => {
+    if (solved) {
+      // mark unlocked to start animation sequence
+      setEnvelopeState("UNLOCKED");
+    }
+  }, [solved]);
+
+  function handleSolved() {
+    setSolved(true);
+  }
+
+  function handleFullyOpened() {
+    setLetterOpened(true);
+    // After opening, advance to love question state
+    setEnvelopeState("LOVE_QUESTION");
+    // For Phase2 we stop here; in Phase3 we'll show question and music
+  }
 
   return (
     <div className="app-container p-6">
@@ -21,10 +38,7 @@ export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => voi
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex items-center justify-center">
-            {/* Envelope placeholder */}
-            <div className="w-72 h-44 bg-gradient-to-b from-[#2b1f1f] to-[#161214] rounded-xl shadow-2xl flex items-center justify-center">
-              <div className="text-warm-white/60">Sobre físico (placeholder)</div>
-            </div>
+            <Envelope onFullyOpened={handleFullyOpened} />
           </div>
 
           <div>
@@ -34,6 +48,13 @@ export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => voi
             </div>
           </div>
         </div>
+
+        {letterOpened && (
+          <div className="mt-6 p-4 bg-white/5 rounded-lg">
+            <h3 className="text-lg font-medium">Carta abierta</h3>
+            <div className="mt-3 text-sm text-warm-white/70">Aquí podrás escribir el contenido de la carta más adelante.</div>
+          </div>
+        )}
       </div>
 
       <MusicPlayer />
