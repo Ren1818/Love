@@ -16,6 +16,7 @@ export default function LetterDrag({ onOpened }: { onOpened: () => void }) {
       (e.target as Element).setPointerCapture(e.pointerId);
       dragging.current = true;
       startY.current = e.clientY;
+      el.style.transition = "none";
     }
 
     function onPointerMove(e: PointerEvent) {

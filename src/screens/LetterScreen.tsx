@@ -19,6 +19,7 @@ export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => voi
 
   function handleFullyOpened() {
     setLetterOpened(true);
+    setShowFullLetter(true);
     setEnvelopeState("LOVE_QUESTION");
   }
 
