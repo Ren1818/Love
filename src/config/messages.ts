@@ -1,6 +1,10 @@
 export const loveMessages = [
-  "FRASE 1",
-  "FRASE 2",
-  "FRASE 3",
-  "FRASE 4"
+  "AQUÍ VA UNA FRASE",
+  "AQUÍ VA OTRA FRASE",
+  "AQUÍ VA OTRA FRASE",
+  "AQUÍ VA OTRA FRASE",
+  "FRASE 5",
+  "FRASE 6",
+  "FRASE 7",
+  "FRASE 8"
 ];
