@@ -5,6 +5,7 @@ import Earth from "./Earth";
 import Stars from "./Stars";
 import FlightRoute from "./FlightRoute";
 import FlyingPlane from "./FlyingPlane";
+import Marker from "./Marker";
 import { origin, destination } from "../../config/locations";
 import { latLonToVector3 } from "../../utils/geo";
 
@@ -44,6 +45,10 @@ export default function SpaceScene({ showRoute }: { showRoute: boolean }) {
         <Suspense fallback={<Html center>Loading scene...</Html>}>
           <Stars />
           <Earth />
+          {/* Markers always present but labels can be subtle; showRoute controls route and plane */}
+          <Marker position={originVec} label={{ line1: `${origin.city}`, line2: origin.country }} />
+          <Marker position={destVec} label={{ line1: `${destination.city}`, line2: destination.country }} />
+
           {showRoute && <FlightRoute originVec={originVec} destVec={destVec} />}
           {showRoute && <FlyingPlane originVec={originVec} destVec={destVec} />}
         </Suspense>

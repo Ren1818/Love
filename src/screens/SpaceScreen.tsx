@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import SpaceScene from "../components/Space/SpaceScene";
 import RelationshipCounter from "../components/RelationshipCounter/RelationshipCounter";
-import { useState } from "react";
+import { calculateDistance } from "../utils/distance";
+import { origin, destination } from "../config/locations";
+import RouteInfoCard from "../components/Space/RouteInfoCard";
 
 export default function SpaceScreen({ onBack }: { onBack: () => void }) {
   const [showRoute, setShowRoute] = useState(false);
+
+  const distanceKm = calculateDistance(origin, destination);
 
   return (
     <div className="app-container p-6">
@@ -28,6 +32,13 @@ export default function SpaceScreen({ onBack }: { onBack: () => void }) {
             <div className="mt-4">
               <button onClick={() => setShowRoute((s) => !s)} className="px-3 py-2 rounded bg-gold text-black">{showRoute ? "Ocultar ruta" : "Mostrar ruta"}</button>
             </div>
+
+            {showRoute && (
+              <div className="mt-4">
+                <RouteInfoCard originName={`${origin.city}, ${origin.country}`} destinationName={`${destination.city}, ${destination.country}`} distanceKm={distanceKm} />
+              </div>
+            )}
+
           </div>
         </div>
       </div>
