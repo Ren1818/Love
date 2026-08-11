@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from "react";
+import React, { Suspense, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import Earth from "./Earth";
@@ -6,8 +6,10 @@ import Stars from "./Stars";
 import FlightRoute from "./FlightRoute";
 import FlyingPlane from "./FlyingPlane";
 import Marker from "./Marker";
+import StarMessage from "./StarMessage";
 import { origin, destination } from "../../config/locations";
 import { latLonToVector3 } from "../../utils/geo";
+import { loveMessages } from "../../config/messages";
 
 function isWebGLAvailable() {
   try {
@@ -18,9 +20,10 @@ function isWebGLAvailable() {
   }
 }
 
-export default function SpaceScene({ showRoute }: { showRoute: boolean }) {
+export default function SpaceScene({ showRoute, onToggleRoute }: { showRoute: boolean; onToggleRoute?: () => void }) {
   const originVec = useMemo(() => latLonToVector3(origin.latitude, origin.longitude, 1), []);
   const destVec = useMemo(() => latLonToVector3(destination.latitude, destination.longitude, 1), []);
+  const [selected, setSelected] = useState<{ idx: number; pos: [number, number, number] } | null>(null);
 
   if (!isWebGLAvailable()) {
     return (
@@ -34,6 +37,11 @@ export default function SpaceScene({ showRoute }: { showRoute: boolean }) {
     );
   }
 
+  function handleStarMessage(idx: number, posVec: any) {
+    const pos: [number, number, number] = [posVec.x, posVec.y, posVec.z];
+    setSelected({ idx, pos });
+  }
+
   return (
     <div style={{ width: "100%", height: "100%", minHeight: 420 }}>
       <Canvas
@@ -43,14 +51,17 @@ export default function SpaceScene({ showRoute }: { showRoute: boolean }) {
         <ambientLight intensity={0.4} />
         <directionalLight position={[5, 5, 5]} intensity={0.6} />
         <Suspense fallback={<Html center>Loading scene...</Html>}>
-          <Stars />
-          <Earth />
-          {/* Markers always present but labels can be subtle; showRoute controls route and plane */}
+          <Stars loveMessages={loveMessages} onMessage={handleStarMessage} />
+          <Earth onClick={() => onToggleRoute && onToggleRoute()} />
           <Marker position={originVec} label={{ line1: `${origin.city}`, line2: origin.country }} />
           <Marker position={destVec} label={{ line1: `${destination.city}`, line2: destination.country }} />
 
           {showRoute && <FlightRoute originVec={originVec} destVec={destVec} />}
           {showRoute && <FlyingPlane originVec={originVec} destVec={destVec} />}
+
+          {selected && (
+            <StarMessage position={selected.pos} message={loveMessages[selected.idx] || ""} onClose={() => setSelected(null)} />
+          )}
         </Suspense>
 
         <OrbitControls

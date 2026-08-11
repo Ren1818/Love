@@ -1,9 +1,12 @@
-import React, { useRef, useEffect } from "react";
-import { useLoader, useFrame } from "@react-three/fiber";
+import React, { useEffect, useRef } from "react";
+import { useLoader, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureLoader } from "three";
 
-export default function Earth() {
+export default function Earth({ onClick }: { onClick?: () => void }) {
+  const { viewport } = useThree();
+  const segments = viewport.width < 6 ? 32 : 64; // adaptive segments for mobile/smaller viewports
+
   const [colorMap, normalMap, cloudsMap, nightMap] = useLoader(TextureLoader, [
     "/textures/earth/colormap.png",
     "/textures/earth/normal.png",
@@ -16,20 +19,36 @@ export default function Earth() {
 
   useFrame((state, delta) => {
     // slow rotation
-    earthRef.current.rotation.y += delta * 0.06;
-    cloudsRef.current.rotation.y += delta * 0.08;
+    if (earthRef.current) earthRef.current.rotation.y += delta * 0.06;
+    if (cloudsRef.current) cloudsRef.current.rotation.y += delta * 0.08;
   });
 
   useEffect(() => {
     return () => {
-      [colorMap, normalMap, cloudsMap, nightMap].forEach((t) => t?.dispose && t.dispose());
+      // cleanup textures
+      [colorMap, normalMap, cloudsMap, nightMap].forEach((t) => t && (t.dispose && t.dispose()));
+      // dispose geometries/materials if any
+      if (earthRef.current) {
+        earthRef.current.geometry && (earthRef.current.geometry.dispose && earthRef.current.geometry.dispose());
+        const mat: any = earthRef.current.material;
+        if (mat) {
+          mat.dispose && mat.dispose();
+        }
+      }
+      if (cloudsRef.current) {
+        cloudsRef.current.geometry && (cloudsRef.current.geometry.dispose && cloudsRef.current.geometry.dispose());
+        const mat2: any = cloudsRef.current.material;
+        if (mat2) {
+          mat2.dispose && mat2.dispose();
+        }
+      }
     };
   }, [colorMap, normalMap, cloudsMap, nightMap]);
 
   return (
     <group>
-      <mesh ref={earthRef} position={[0, 0, 0]}>
-        <sphereGeometry args={[1, 64, 64]} />
+      <mesh ref={earthRef} position={[0, 0, 0]} onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}>
+        <sphereGeometry args={[1, segments, segments]} />
         <meshStandardMaterial
           map={colorMap}
           normalMap={normalMap}
@@ -40,13 +59,13 @@ export default function Earth() {
 
       {/* night lights as subtle emissive layer */}
       <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[1.001, 64, 64]} />
+        <sphereGeometry args={[1.001, segments, segments]} />
         <meshBasicMaterial map={nightMap} blending={THREE.AdditiveBlending} transparent opacity={0.6} toneMapped={false} />
       </mesh>
 
       {/* clouds / atmosphere */}
       <mesh ref={cloudsRef} position={[0, 0, 0]}> 
-        <sphereGeometry args={[1.02, 64, 64]} />
+        <sphereGeometry args={[1.02, segments, segments]} />
         <meshPhongMaterial map={cloudsMap} transparent opacity={0.28} depthWrite={false} />
       </mesh>
 
@@ -60,14 +79,14 @@ export default function Earth() {
             p: { value: 4.0 },
             glowColor: { value: new THREE.Color(0x3fb0ff) }
           }}
-          vertexShader={/* glsl */`
+          vertexShader={`
             varying vec3 vNormal;
             void main() {
               vNormal = normalize(normalMatrix * normal);
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
             }
           `}
-          fragmentShader={/* glsl */`
+          fragmentShader={`
             uniform float c; uniform float p; uniform vec3 glowColor; varying vec3 vNormal;
             void main() {
               float intensity = pow(c - dot(vNormal, vec3(0.0,0.0,1.0)), p);
