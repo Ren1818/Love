@@ -1,34 +1,3 @@
-.letter-card {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg, #fffdf8, #f8f3ee);
-  border-radius: 8px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
+/* additional styles for full letter and love question spacing */
 
-.letter-card:active { cursor: grabbing; }
-
-.letter-fold {
-  width: 92%;
-  height: 88%;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-.letter-inner {
-  padding: 18px;
-  color: #1b1b1b;
-}
-
-.letter-placeholder {
-  color: #6b6b6b;
-  font-style: italic;
-  text-align: center;
-}
+.letter-full { }

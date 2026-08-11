@@ -1,6 +1,1 @@
-{
-  "name": "Nuestra Historia README",
-  "description": "Scaffold fase1: Vite + React + TypeScript + Tailwind + PWA. Ramas: phase1-scaffold",
-  "howto": "npm install && npm run dev",
-  "notes": "No olvides subir your audio file a public/audio/entre-el-juego-y-la-vida.mp3 and replace textures in public/textures/earth with higher quality maps."
-}
+Update Phase3: Letter unfold, LoveQuestion with evasive No, Music player download button

@@ -1,5 +1,6 @@
 import React from "react";
 import { useMusic } from "./useMusicPlayer";
+import { music as musicConfig } from "../../config/music";
 
 export default function MusicPlayerSmall() {
   const { playing, currentTime, duration, play, pause } = useMusic();
@@ -10,13 +11,15 @@ export default function MusicPlayerSmall() {
     <div className="fixed bottom-6 right-6 bg-white/5 border border-white/5 p-3 rounded-xl flex items-center gap-3">
       <div className="w-12 h-12 bg-black/40 rounded overflow-hidden">
         {/* cover placeholder */}
+        <img src={musicConfig.cover} alt="cover" className="w-full h-full object-cover" />
       </div>
       <div className="min-w-[160px]">
-        <div className="text-sm">NOMBRE DE LA CANCIÓN</div>
-        <div className="text-xs text-warm-white/60">ARTISTA</div>
+        <div className="text-sm">{musicConfig.title}</div>
+        <div className="text-xs text-warm-white/60">{musicConfig.artist}</div>
         <div className="text-xs mt-1">{formatTime(currentTime)} / {formatTime(duration)}</div>
       </div>
       <button onClick={toggle} aria-label="play-pause" className="px-3 py-2 bg-gold text-black rounded">{playing ? "Pause" : "Play"}</button>
+      <a href={musicConfig.audio} download className="text-sm text-warm-white/70 underline ml-2">Descargar</a>
     </div>
   );
 }

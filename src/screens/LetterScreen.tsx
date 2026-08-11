@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MathLock from "../components/MathLock/MathLock";
 import RelationshipCounter from "../components/RelationshipCounter/RelationshipCounter";
 import MusicPlayer from "../components/Music/MusicPlayer";
 import Envelope from "../components/Envelope/Envelope";
+import LoveQuestion from "../components/LoveQuestion/LoveQuestion";
+import LetterFull from "../components/Letter/Letter";
 import { useGlobalState } from "../state/GlobalState";
 
 export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => void }) {
   const { envelopeState, setEnvelopeState } = useGlobalState();
   const [solved, setSolved] = useState(false);
   const [letterOpened, setLetterOpened] = useState(false);
-
-  useEffect(() => {
-    if (solved) {
-      // mark unlocked to start animation sequence
-      setEnvelopeState("UNLOCKED");
-    }
-  }, [solved]);
+  const [showFullLetter, setShowFullLetter] = useState(false);
 
   function handleSolved() {
     setSolved(true);
@@ -23,9 +19,17 @@ export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => voi
 
   function handleFullyOpened() {
     setLetterOpened(true);
-    // After opening, advance to love question state
     setEnvelopeState("LOVE_QUESTION");
-    // For Phase2 we stop here; in Phase3 we'll show question and music
+  }
+
+  function handleYes() {
+    // cinematic transition
+    setEnvelopeState("SPACE_TRANSITION");
+    // delay then enter space
+    setTimeout(() => {
+      setEnvelopeState("SPACE");
+      onEnterSpace();
+    }, 900);
   }
 
   return (
@@ -49,12 +53,16 @@ export default function LetterScreen({ onEnterSpace }: { onEnterSpace: () => voi
           </div>
         </div>
 
-        {letterOpened && (
-          <div className="mt-6 p-4 bg-white/5 rounded-lg">
-            <h3 className="text-lg font-medium">Carta abierta</h3>
-            <div className="mt-3 text-sm text-warm-white/70">Aquí podrás escribir el contenido de la carta más adelante.</div>
+        {envelopeState === "LOVE_QUESTION" && (
+          <div className="mt-6">
+            <LoveQuestion onYes={handleYes} />
           </div>
         )}
+
+        {showFullLetter && (
+          <LetterFull onClose={() => setShowFullLetter(false)} />
+        )}
+
       </div>
 
       <MusicPlayer />
